@@ -21,8 +21,7 @@ export class UserService {
 			const checkEmail = await this.userRepository.findOne({
 				email: user.email
 			});
-			if (!checkEmail && user.email)
-			return { msg: 'success' };
+			if (!checkEmail && user.email) return { msg: 'success' };
 		} catch (err) {}
 		return { msg: 'fail' };
 	}
@@ -32,8 +31,7 @@ export class UserService {
 			const checkNickname = await this.userRepository.findOne({
 				nickname: user.nickname
 			});
-			if (!checkNickname && user.nickname)
-				return { msg: 'success' };
+			if (!checkNickname && user.nickname) return { msg: 'success' };
 		} catch (err) {}
 		return { msg: 'fail' };
 	}

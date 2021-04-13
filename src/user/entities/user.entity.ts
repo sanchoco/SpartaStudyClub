@@ -1,13 +1,19 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { UserToday } from 'src/quest/entities/userToday.entity';
 
-@Entity()
+@Entity('user')
 export class User {
 	@PrimaryColumn({ unique: true })
 	email: string;
 
-	@Column({ unique: true })
+	@Column({ type: 'varchar', unique: true })
 	nickname: string;
 
-	@Column()
+	@Column({ type: 'varchar' })
 	password: string;
+
+	@OneToMany(() => UserToday, (userToday) => userToday.user, {
+		onDelete: 'CASCADE'
+	})
+	userToday: UserToday[];
 }
