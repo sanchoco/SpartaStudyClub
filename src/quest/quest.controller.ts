@@ -5,39 +5,61 @@ import {
 	Body,
 	Patch,
 	Param,
-	Delete
+	Delete,
+	Headers,
+	Query
 } from '@nestjs/common';
 import { QuestService } from './quest.service';
+import { CreateSetDto } from './dto/create-set.dto';
 import { CreateQuestDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
+import { DeleteQuestDto } from './dto/delete-quest.dto';
 
 @Controller('quest')
 export class QuestController {
 	constructor(private readonly questService: QuestService) {}
 
+	@Get('calendar')
+	getCalendar(
+		@Query('year') year: string,
+		@Query('month') month: string,
+		@Headers() header: any
+	) {
+		month = ('0' + parseInt(month)).slice(-2);
+		const toDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+		let fromDate = new Date();
+		fromDate.setMonth(toDate.getMonth() - 1);
+		fromDate.setDate(1);
+		console.log(year, month, toDate, fromDate);
+		return this.questService.getCalendar(fromDate, toDate, header.email);
+	}
+
+	// 공부 시간 설정
+	@Post('time')
+	setStudyTime(@Body() createSetDto: CreateSetDto, @Headers() header: any) {
+		const date: Date = new Date();
+		const year = String(date.getFullYear());
+		const month: string = ('0' + (1 + date.getMonth())).slice(-2);
+		const day: string = ('0' + date.getDate()).slice(-2);
+		const ymd = year + '-' + month + '-' + day;
+		return this.questService.setStudyTime(createSetDto, ymd, header.email);
+	}
+
+	// 할 일 생성
 	@Post()
-	create(@Body() createQuestDto: CreateQuestDto) {
-		return this.questService.create(createQuestDto);
+	setQuest(@Body() createQuestDto: CreateQuestDto) {
+		return this.questService.createQuest(createQuestDto);
 	}
 
-	@Get(':month')
-	findStudyData(@Param('month') month: string) {
-		console.log(month);
-		return this.questService.findAll();
+	// 할 일 상태 변경
+	@Patch()
+	setQuestYn(@Body() updateQuestDto: UpdateQuestDto) {
+		return this.questService.setQuestYn(updateQuestDto);
 	}
 
-	// @Get(':id')
-	// findOne(@Param('id') id: string) {
-	// 	return this.questService.findOne(+id);
-	// }
-
-	// @Patch(':id')
-	// update(@Param('id') id: string, @Body() updateQuestDto: UpdateQuestDto) {
-	// 	return this.questService.update(+id, updateQuestDto);
-	// }
-
-	// @Delete(':id')
-	// remove(@Param('id') id: string) {
-	// 	return this.questService.remove(+id);
-	// }
+	// 할 일 삭제
+	@Delete()
+	deleteQuest(@Body() deleteQuestDto: DeleteQuestDto) {
+		return this.questService.deleteQuest(deleteQuestDto);
+	}
 }

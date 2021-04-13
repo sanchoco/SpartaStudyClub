@@ -2,31 +2,34 @@ import {
 	Column,
 	CreateDateColumn,
 	Entity,
+	Generated,
 	Index,
 	JoinColumn,
 	ManyToOne,
 	OneToMany,
-	PrimaryColumn
+	PrimaryColumn,
+	PrimaryGeneratedColumn,
+	Unique
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Quest } from './quest.entity';
 
 @Entity('userToday')
-@Index(['userTodayId', 'day', 'user'])
+@Unique(['day', 'user'])
 export class UserToday {
-	@PrimaryColumn('uuid')
+	@PrimaryGeneratedColumn('uuid')
 	userTodayId: string;
 
-	@Column()
+	@Column({ type: 'varchar' })
 	day: string;
 
-	@CreateDateColumn()
+	@CreateDateColumn({ type: 'timestamp' })
 	studyTime: Date;
 
 	@Column({ type: 'int' })
 	studySetTime: number;
 
-	@Column({ type: 'float' })
+	@Column({ type: 'float', default: 0 })
 	questRate: number;
 
 	@ManyToOne(() => User, (user) => user.userToday)

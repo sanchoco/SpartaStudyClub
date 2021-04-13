@@ -7,4 +7,3 @@ export class TestController {
 		return { msg: `인증된 기능 사용, ${header.email}` };
 	}
 }
-

@@ -4,14 +4,15 @@ import {
 	Index,
 	JoinColumn,
 	ManyToOne,
-	PrimaryColumn
+	PrimaryColumn,
+	PrimaryGeneratedColumn
 } from 'typeorm';
 import { UserToday } from './userToday.entity';
 
 @Entity('quest')
 @Index(['questId'])
 export class Quest {
-	@PrimaryColumn('uuid')
+	@PrimaryGeneratedColumn('uuid')
 	questId: string;
 
 	@Column({ type: 'varchar' })

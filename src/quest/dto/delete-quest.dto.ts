@@ -1,8 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class UpdateQuestDto {
+export class DeleteQuestDto {
 	@IsString()
 	readonly questId!: string;
-	@IsString()
-	readonly questYn!: string;
 }
