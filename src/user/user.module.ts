@@ -1,15 +1,16 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { ConfigModule } from '@nestjs/config';
+import { AuthMiddleware } from 'src/middleware/AuthMiddleware';
+import { TestController } from './test/test.controller';
+
 
 @Module({
 	imports: [
-		ConfigModule.forRoot({
-			isGlobal: true
-		}),
+		ConfigModule.forRoot(),
 		TypeOrmModule.forFeature([User]),
 		TypeOrmModule.forRoot({
 			type: 'mysql',
@@ -22,7 +23,11 @@ import { ConfigModule } from '@nestjs/config';
 			synchronize: true
 		})
 	],
-	controllers: [UserController],
+	controllers: [UserController, TestController],
 	providers: [UserService]
 })
-export class UserModule {}
+export class UserModule implements NestModule{
+	configure(consumer: MiddlewareConsumer) {
+		consumer.apply(AuthMiddleware).forRoutes(TestController);
+	}
+}

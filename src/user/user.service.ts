@@ -18,8 +18,11 @@ export class UserService {
 
 	async checkEmail(user: CheckUserDto) {
 		try {
-			const checkEmail = await this.userRepository.findOne({ email : user.email });
-			if (!checkEmail && user.email.length > 1) return { msg: 'success' };
+			const checkEmail = await this.userRepository.findOne({
+				email: user.email
+			});
+			if (!checkEmail && user.email)
+			return { msg: 'success' };
 		} catch (err) {}
 		return { msg: 'fail' };
 	}
@@ -29,7 +32,8 @@ export class UserService {
 			const checkNickname = await this.userRepository.findOne({
 				nickname: user.nickname
 			});
-			if (!checkNickname && user.nickname.length > 1) return { msg: 'success' };
+			if (!checkNickname && user.nickname)
+				return { msg: 'success' };
 		} catch (err) {}
 		return { msg: 'fail' };
 	}
@@ -57,7 +61,7 @@ export class UserService {
 					},
 					process.env.SECRET_KEY
 				);
-				return { msg: 'success', token };
+				return { msg: 'success', token, nickname: db.nickname };
 			}
 			return { msg: 'fail' };
 		} catch (err) {
