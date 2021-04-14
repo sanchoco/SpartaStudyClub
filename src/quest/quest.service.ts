@@ -201,46 +201,65 @@ export class QuestService {
 		const questYn = updateQuestDto.questYn;
 
 		return await this.questRepository
-			.update(questId, {
-				questYn: questYn
+			.findOne({
+				questId: questId
 			})
-			.then(async (upd) => {
-				if (upd.raw.changedRows > 0) {
-					const allCnt = await this.questRepository.count({
-						relations: ['userToday'],
-						where: {
-							userToday: {
-								userTodayId: updateQuestDto.userTodayId
-							}
-						}
-					});
-
-					const clearCnt = await this.questRepository.count({
-						relations: ['userToday'],
-						where: {
-							userToday: {
-								userTodayId: updateQuestDto.userTodayId
-							},
-							questYn: true
-						}
-					});
-
-					const rate = (clearCnt / allCnt) * 100;
-					await this.userTodayRepository.update(
-						updateQuestDto.userTodayId,
-						{
-							questRate: rate
-						}
-					);
-					return {
-						msg: 'success',
-						questRate: rate
-					};
-				} else {
+			.then(async (findQuest) => {
+				if (findQuest.questYn == questYn) {
 					return { msg: 'fail' };
+				} else {
+					return await this.questRepository
+						.update(questId, {
+							questYn: questYn
+						})
+						.then(async (upd) => {
+							if (upd.raw.changedRows > 0) {
+								const allCnt = await this.questRepository.count(
+									{
+										relations: ['userToday'],
+										where: {
+											userToday: {
+												userTodayId:
+													updateQuestDto.userTodayId
+											}
+										}
+									}
+								);
+
+								const clearCnt = await this.questRepository.count(
+									{
+										relations: ['userToday'],
+										where: {
+											userToday: {
+												userTodayId:
+													updateQuestDto.userTodayId
+											},
+											questYn: true
+										}
+									}
+								);
+
+								const rate = (clearCnt / allCnt) * 100;
+								await this.userTodayRepository.update(
+									updateQuestDto.userTodayId,
+									{
+										questRate: rate
+									}
+								);
+								return {
+									msg: 'success',
+									questRate: rate
+								};
+							} else {
+								return { msg: 'fail' };
+							}
+						})
+						.catch(() => {
+							return { msg: 'fail' };
+						});
 				}
 			})
-			.catch(() => {
+			.catch((err) => {
 				return { msg: 'fail' };
 			});
 	}
