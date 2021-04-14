@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, getManager, Repository } from 'typeorm';
 import { CreateSetDto } from './dto/create-set.dto';
 import { CreateQuestDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
@@ -9,6 +9,7 @@ import { User } from '../user/entities/user.entity';
 import { Quest } from './entities/quest.entity';
 import { DeleteQuestDto } from './dto/delete-quest.dto';
 import { from } from 'rxjs';
+import { clear } from 'node:console';
 
 @Injectable()
 export class QuestService {
@@ -24,17 +25,62 @@ export class QuestService {
 		private readonly questRepository: Repository<Quest>
 	) {}
 
-	async getCalendar(fromDate: Date, toDate: Date, email: string) {
+	async getData(ymd: string, email: string) {
 		return await this.userTodayRepository
-			.find({
+			.findOne({
 				relations: ['user'],
 				where: {
 					user: { email: email },
-					studyTime: Between(fromDate, toDate)
+					day: ymd
 				}
 			})
+			.then(async (findData) => {
+				if (findData) {
+					const uid = findData.userTodayId;
+					return await this.questRepository
+						.find({
+							relations: ['userToday'],
+							where: {
+								userToday: { userTodayId: uid }
+							}
+						})
+						.then((findQuest) => {
+							if (findQuest) {
+								return { msg: 'success', data: findQuest };
+							} else {
+								return { msg: 'fail' };
+							}
+						})
+						.catch((err) => {
+							return { msg: 'fail' };
+						});
+				} else {
+					return { msg: 'fail' };
+				}
+			})
+			.catch((err) => {
+				return { msg: 'fail' };
+			});
+	}
+
+	async getCalendar(fromDate: Date, toDate: Date, email: string) {
+		const fd = fromDate.toISOString();
+		const td = toDate.toISOString();
+		return await getManager()
+			.query(
+				`SELECT a.userTodayId, a.day, a.studyTime, UNIX_TIMESTAMP(a.studyTime) as studyTimeStamp, a.studySetTime, a.questRate, b.questId, b.questContent, b.questYn, u.email
+from userToday a, quest b, user u
+where a.userTodayId = b.userTodayId
+  and u.email = a.email
+  and u.email = '${email}'
+  and a.studyTime between ('${fd}') and ('${td}')`
+			)
 			.then((cal) => {
-				console.log(cal);
+				if (cal) {
+					return { msg: 'success', data: cal };
+				} else {
+					return { msg: 'fail' };
+				}
 			});
 	}
 
@@ -46,7 +92,7 @@ export class QuestService {
 
 		const userToday: UserToday = new UserToday();
 		userToday.day = ymd;
-		userToday.studySetTime = CreateSetDto.time;
+		userToday.studySetTime = CreateSetDto.studySetTime;
 		userToday.user = user;
 		await this.userTodayRepository.insert(userToday);
 
@@ -59,7 +105,11 @@ export class QuestService {
 			})
 			.then((utId) => {
 				if (utId) {
-					return { msg: 'success', userTodayId: utId.userTodayId };
+					return {
+						msg: 'success',
+						userTodayId: utId.userTodayId,
+						studyTime: utId.studyTime
+					};
 				} else {
 					return { msg: 'fail' };
 				}
@@ -87,13 +137,41 @@ export class QuestService {
 					userToday: { userTodayId: createQuestDto.userTodayId }
 				}
 			})
-			.then((qId) => {
+			.then(async (qId) => {
 				if (qId) {
+					const allCnt = await this.questRepository.count({
+						relations: ['userToday'],
+						where: {
+							userToday: {
+								userTodayId: createQuestDto.userTodayId
+							}
+						}
+					});
+
+					const clearCnt = await this.questRepository.count({
+						relations: ['userToday'],
+						where: {
+							userToday: {
+								userTodayId: createQuestDto.userTodayId
+							},
+							questYn: true
+						}
+					});
+
+					const rate = (clearCnt / allCnt) * 100;
+					await this.userTodayRepository.update(
+						createQuestDto.userTodayId,
+						{
+							questRate: rate
+						}
+					);
+
 					return {
 						msg: 'success',
 						questId: qId.questId,
 						questContent: qId.questContent,
-						questYn: qId.questYn
+						questYn: qId.questYn,
+						questRate: rate
 					};
 				} else {
 					return { msg: 'fail' };
@@ -113,10 +191,37 @@ export class QuestService {
 			.update(questId, {
 				questYn: questYn
 			})
-			.then((upd) => {
+			.then(async (upd) => {
 				if (upd.raw.changedRows > 0) {
+					const allCnt = await this.questRepository.count({
+						relations: ['userToday'],
+						where: {
+							userToday: {
+								userTodayId: updateQuestDto.userTodayId
+							}
+						}
+					});
+
+					const clearCnt = await this.questRepository.count({
+						relations: ['userToday'],
+						where: {
+							userToday: {
+								userTodayId: updateQuestDto.userTodayId
+							},
+							questYn: true
+						}
+					});
+
+					const rate = (clearCnt / allCnt) * 100;
+					await this.userTodayRepository.update(
+						updateQuestDto.userTodayId,
+						{
+							questRate: rate
+						}
+					);
 					return {
-						msg: 'success'
+						msg: 'success',
+						questRate: rate
 					};
 				} else {
 					return { msg: 'fail' };
@@ -132,10 +237,37 @@ export class QuestService {
 		const questId = deleteQuestDto.questId;
 		return await this.questRepository
 			.delete({ questId: questId })
-			.then((del) => {
+			.then(async (del) => {
 				if (del.affected > 0) {
+					const allCnt = await this.questRepository.count({
+						relations: ['userToday'],
+						where: {
+							userToday: {
+								userTodayId: deleteQuestDto.userTodayId
+							}
+						}
+					});
+
+					const clearCnt = await this.questRepository.count({
+						relations: ['userToday'],
+						where: {
+							userToday: {
+								userTodayId: deleteQuestDto.userTodayId
+							},
+							questYn: true
+						}
+					});
+
+					const rate = (clearCnt / allCnt) * 100;
+					await this.userTodayRepository.update(
+						deleteQuestDto.userTodayId,
+						{
+							questRate: rate
+						}
+					);
 					return {
-						msg: 'success'
+						msg: 'success',
+						questRate: rate
 					};
 				} else {
 					return { msg: 'fail' };

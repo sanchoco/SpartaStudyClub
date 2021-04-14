@@ -1,8 +1,10 @@
-import { IsString } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 
 export class UpdateQuestDto {
 	@IsString()
-	readonly questId!: string;
+	readonly userTodayId!: string;
 	@IsString()
-	readonly questYn!: string;
+	readonly questId!: string;
+	@IsBoolean()
+	readonly questYn!: boolean;
 }

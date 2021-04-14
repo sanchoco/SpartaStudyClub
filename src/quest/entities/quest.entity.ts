@@ -18,8 +18,8 @@ export class Quest {
 	@Column({ type: 'varchar' })
 	questContent: string;
 
-	@Column({ default: 'N' })
-	questYn: string;
+	@Column({ default: false })
+	questYn: boolean;
 
 	@ManyToOne(() => UserToday, (userToday) => userToday.quest)
 	@JoinColumn([{ name: 'userTodayId', referencedColumnName: 'userTodayId' }])

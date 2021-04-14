@@ -15,9 +15,23 @@ import { CreateQuestDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
 import { DeleteQuestDto } from './dto/delete-quest.dto';
 
+function getToday(): string {
+	const date: Date = new Date();
+	const year = String(date.getFullYear());
+	const month: string = ('0' + (1 + date.getMonth())).slice(-2);
+	const day: string = ('0' + date.getDate()).slice(-2);
+	return year + '/' + month + '/' + day;
+}
+
 @Controller('quest')
 export class QuestController {
 	constructor(private readonly questService: QuestService) {}
+
+	@Get()
+	getData(@Headers() header: any) {
+		const ymd = getToday();
+		return this.questService.getData(ymd, header.email);
+	}
 
 	@Get('calendar')
 	getCalendar(
@@ -30,18 +44,13 @@ export class QuestController {
 		let fromDate = new Date();
 		fromDate.setMonth(toDate.getMonth() - 1);
 		fromDate.setDate(1);
-		console.log(year, month, toDate, fromDate);
 		return this.questService.getCalendar(fromDate, toDate, header.email);
 	}
 
 	// 공부 시간 설정
 	@Post('time')
 	setStudyTime(@Body() createSetDto: CreateSetDto, @Headers() header: any) {
-		const date: Date = new Date();
-		const year = String(date.getFullYear());
-		const month: string = ('0' + (1 + date.getMonth())).slice(-2);
-		const day: string = ('0' + date.getDate()).slice(-2);
-		const ymd = year + '-' + month + '-' + day;
+		const ymd = getToday();
 		return this.questService.setStudyTime(createSetDto, ymd, header.email);
 	}
 
@@ -57,7 +66,7 @@ export class QuestController {
 		return this.questService.setQuestYn(updateQuestDto);
 	}
 
-	// 할 일 삭제
+	// 할 일 삭제(param으로 받기, 이건 좀 위험하다. 그냥 바디로 받자)
 	@Delete()
 	deleteQuest(@Body() deleteQuestDto: DeleteQuestDto) {
 		return this.questService.deleteQuest(deleteQuestDto);
