@@ -87,15 +87,19 @@ export class QuestService {
 
 	// 공부 시간 설정
 	async setStudyTime(CreateSetDto: CreateSetDto, ymd: string, email: string) {
-		const user: User = new User();
-		user.email = email;
-		await this.userRepository.save(user);
+		try {
+			const user: User = new User();
+			user.email = email;
+			await this.userRepository.save(user);
 
-		const userToday: UserToday = new UserToday();
-		userToday.day = ymd;
-		userToday.studySetTime = CreateSetDto.studySetTime;
-		userToday.user = user;
-		await this.userTodayRepository.insert(userToday);
+			const userToday: UserToday = new UserToday();
+			userToday.day = ymd;
+			userToday.studySetTime = CreateSetDto.studySetTime;
+			userToday.user = user;
+			await this.userTodayRepository.insert(userToday);
+		} catch (error) {
+			return { msg: 'fail' };
+		}
 
 		return await this.userTodayRepository
 			.findOne({
@@ -122,14 +126,18 @@ export class QuestService {
 
 	// 할 일 생성
 	async createQuest(createQuestDto: CreateQuestDto) {
-		const userToday: UserToday = new UserToday();
-		userToday.userTodayId = createQuestDto.userTodayId;
-		await this.userTodayRepository.save(userToday);
+		try {
+			const userToday: UserToday = new UserToday();
+			userToday.userTodayId = createQuestDto.userTodayId;
+			await this.userTodayRepository.save(userToday);
 
-		const quest: Quest = new Quest();
-		quest.questContent = createQuestDto.questContent;
-		quest.userToday = userToday;
-		await this.questRepository.insert(quest);
+			const quest: Quest = new Quest();
+			quest.questContent = createQuestDto.questContent;
+			quest.userToday = userToday;
+			await this.questRepository.insert(quest);
+		} catch (error) {
+			return { msg: 'fail' };
+		}
 
 		return await this.questRepository
 			.find({
