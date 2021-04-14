@@ -64,8 +64,8 @@ export class QuestService {
 	}
 
 	async getCalendar(fromDate: Date, toDate: Date, email: string) {
-		const fd = fromDate.toISOString();
-		const td = toDate.toISOString();
+		const fd: string = fromDate.toISOString();
+		const td: string = toDate.toISOString();
 		return await getManager()
 			.query(
 				`SELECT a.userTodayId, a.day, a.studyTime, UNIX_TIMESTAMP(a.studyTime) as studyTimeStamp, a.studySetTime, a.questRate, b.questId, b.questContent, b.questYn, u.email
