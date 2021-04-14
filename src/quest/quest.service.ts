@@ -68,12 +68,13 @@ export class QuestService {
 		const td: string = toDate.toISOString();
 		return await getManager()
 			.query(
-				`SELECT a.userTodayId, a.day, a.studyTime, UNIX_TIMESTAMP(a.studyTime) as studyTimeStamp, a.studySetTime, a.questRate, b.questId, b.questContent, b.questYn, u.email
-from userToday a, quest b, user u
-where a.userTodayId = b.userTodayId
-  and u.email = a.email
-  and u.email = '${email}'
-  and a.studyTime between ('${fd}') and ('${td}')`
+				`SELECT ut.userTodayId, ut.day, ut.studyTime, UNIX_TIMESTAMP(ut.studyTime) as studyTimeStamp, ut.studySetTime, ut.questRate, q.questId, q.questContent, q.questYn, q.createdDt, u.email
+                   FROM userToday ut, quest q, user u
+                  WHERE ut.userTodayId = q.userTodayId
+                    AND u.email = ut.email
+                    AND u.email = '${email}'
+                    AND ut.studyTime between ('${fd}') and ('${td}')
+               ORDER BY ut.studyTime DESC, q.createdDt ASC`
 			)
 			.then((cal) => {
 				if (cal) {
@@ -131,11 +132,15 @@ where a.userTodayId = b.userTodayId
 		await this.questRepository.insert(quest);
 
 		return await this.questRepository
-			.findOne({
+			.find({
 				relations: ['userToday'],
 				where: {
 					userToday: { userTodayId: createQuestDto.userTodayId }
-				}
+				},
+				order: {
+					createdDt: 'DESC'
+				},
+				take: 1
 			})
 			.then(async (qId) => {
 				if (qId) {
@@ -168,9 +173,9 @@ where a.userTodayId = b.userTodayId
 
 					return {
 						msg: 'success',
-						questId: qId.questId,
-						questContent: qId.questContent,
-						questYn: qId.questYn,
+						questId: qId[0]['questId'],
+						questContent: qId[0]['questContent'],
+						questYn: qId[0]['questYn'],
 						questRate: rate
 					};
 				} else {

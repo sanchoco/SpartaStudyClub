@@ -1,11 +1,12 @@
 import {
 	Column,
+	CreateDateColumn,
 	Entity,
 	Index,
 	JoinColumn,
 	ManyToOne,
-	PrimaryColumn,
-	PrimaryGeneratedColumn
+	PrimaryGeneratedColumn,
+	UpdateDateColumn
 } from 'typeorm';
 import { UserToday } from './userToday.entity';
 
@@ -20,6 +21,12 @@ export class Quest {
 
 	@Column({ default: false })
 	questYn: boolean;
+
+	@CreateDateColumn()
+	createdDt: Date;
+
+	@UpdateDateColumn()
+	updatedDt: Date;
 
 	@ManyToOne(() => UserToday, (userToday) => userToday.quest)
 	@JoinColumn([{ name: 'userTodayId', referencedColumnName: 'userTodayId' }])
