@@ -8,12 +8,24 @@ import * as jwt from 'jsonwebtoken';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { CheckUserDto } from './dto/check-user.dto';
+import { UserToday } from 'src/quest/entities/userToday.entity';
+
+function getToday(): string {
+	const date: Date = new Date();
+	const year = String(date.getFullYear());
+	const month: string = ('0' + (1 + date.getMonth())).slice(-2);
+	const day: string = ('0' + date.getDate()).slice(-2);
+	return year + '/' + month + '/' + day;
+}
 
 @Injectable()
 export class UserService {
 	constructor(
 		@InjectRepository(User)
-		private readonly userRepository: Repository<User>
+		private readonly userRepository: Repository<User>,
+
+		@InjectRepository(UserToday)
+		private readonly userTodayRepository: Repository<UserToday>
 	) {}
 
 	async checkEmail(user: CheckUserDto) {
@@ -47,22 +59,45 @@ export class UserService {
 	}
 
 	async loginUser(user: LoginUserDto) {
+		let result: Object = {
+			msg: 'success',
+			token: '',
+			nickname: '',
+			studyTime: 0,
+			studySetTime: 0
+		};
 		try {
 			let db = await this.userRepository.findOne({ email: user.email });
 			if (!db) return { msg: 'fail' };
 			let check = await bcrypt.compareSync(user.password, db.password);
+			result['nickname'] = db['nickname'];
+			let today = getToday();
+			console.log(today);
 			if (check) {
-				let token = jwt.sign(
+				let todayTable = await this.userTodayRepository.findOne({
+					relations: ['user'],
+					where: {
+						day: today,
+						user: { email: user.email }
+					}
+				});
+				console.log(todayTable);
+				if (todayTable) {
+					result['studyTime'] = todayTable['studyTime'].getTime();
+					result['studySetTime'] = todayTable['studySetTime'];
+				}
+				result['token'] = jwt.sign(
 					{
 						email: db.email,
 						exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 24시간
 					},
 					process.env.SECRET_KEY
 				);
-				return { msg: 'success', token, nickname: db.nickname };
+				return result;
 			}
 			return { msg: 'fail' };
 		} catch (err) {
+			console.log(err);
 			return { msg: 'fail' };
 		}
 	}
