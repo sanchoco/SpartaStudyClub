@@ -64,7 +64,8 @@ export class UserService {
 			token: '',
 			nickname: '',
 			studyTime: 0,
-			studySetTime: 0
+			studySetTime: 0,
+			userTodayId: ''
 		};
 		try {
 			let db = await this.userRepository.findOne({ email: user.email });
@@ -85,6 +86,7 @@ export class UserService {
 				if (todayTable) {
 					result['studyTime'] = todayTable['studyTime'].getTime();
 					result['studySetTime'] = todayTable['studySetTime'];
+					result['userTodayId'] = todayTable['userTodayId'];
 				}
 				result['token'] = jwt.sign(
 					{
