@@ -20,7 +20,7 @@ function getToday(): string {
 	const utc = today.getTime() + today.getTimezoneOffset() * 60 * 1000;
 	const KR_TIME_DIFF = 9 * 60 * 60 * 1000;
 
-	const kr_today = new Date(utc + KR_TIME_DIFF + 32400000);
+	const kr_today = new Date(utc + KR_TIME_DIFF);
 
 	console.log('kr_today: ', kr_today);
 	const year = String(kr_today.getFullYear());
