@@ -10,6 +10,8 @@ import { Quest } from './entities/quest.entity';
 import { DeleteQuestDto } from './dto/delete-quest.dto';
 import { from } from 'rxjs';
 import { clear } from 'node:console';
+import { type } from 'node:os';
+import { number } from 'joi';
 
 @Injectable()
 export class QuestService {
@@ -292,7 +294,11 @@ export class QuestService {
 						}
 					});
 
-					const rate = (clearCnt / allCnt) * 100;
+					let rate = 0;
+					if (allCnt != 0) {
+						rate = (clearCnt / allCnt) * 100;
+					}
+
 					await this.userTodayRepository.update(
 						deleteQuestDto.userTodayId,
 						{
