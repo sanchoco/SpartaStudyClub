@@ -3,5 +3,5 @@ export class CreateQuestDto {
 	@IsString()
 	readonly userTodayId!: string;
 	@IsString()
-	readonly questContent!: string;
+	readonly questContents!: string;
 }

@@ -17,7 +17,7 @@ export class Quest {
 	questId: string;
 
 	@Column({ type: 'varchar' })
-	questContent: string;
+	questContents: string;
 
 	@Column({ default: false })
 	questYn: boolean;

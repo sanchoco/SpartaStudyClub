@@ -68,7 +68,7 @@ export class QuestService {
 		const td: string = toDate.toISOString();
 		return await getManager()
 			.query(
-				`SELECT ut.userTodayId, ut.day, ut.studyTime, UNIX_TIMESTAMP(ut.studyTime) as studyTimeStamp, ut.studySetTime, ut.questRate, q.questId, q.questContent, q.questYn, q.createdDt, u.email
+				`SELECT ut.userTodayId, ut.day, ut.studyTime, UNIX_TIMESTAMP(ut.studyTime) as studyTimeStamp, ut.studySetTime, ut.questRate, q.questId, q.questContents, q.questYn, q.createdDt, u.email
                    FROM userToday ut, quest q, user u
                   WHERE ut.userTodayId = q.userTodayId
                     AND u.email = ut.email
@@ -105,15 +105,17 @@ export class QuestService {
 			.findOne({
 				relations: ['user'],
 				where: {
-					user: { email: email }
+					user: { email: email },
+					day: ymd
 				}
 			})
 			.then((utId) => {
+				console.log(utId);
 				if (utId) {
 					return {
 						msg: 'success',
 						userTodayId: utId.userTodayId,
-						studyTime: utId.studyTime
+						studyTime: utId.studyTime.getTime()
 					};
 				} else {
 					return { msg: 'fail' };
@@ -132,7 +134,7 @@ export class QuestService {
 			await this.userTodayRepository.save(userToday);
 
 			const quest: Quest = new Quest();
-			quest.questContent = createQuestDto.questContent;
+			quest.questContents = createQuestDto.questContents;
 			quest.userToday = userToday;
 			await this.questRepository.insert(quest);
 		} catch (error) {
@@ -182,7 +184,7 @@ export class QuestService {
 					return {
 						msg: 'success',
 						questId: qId[0]['questId'],
-						questContent: qId[0]['questContent'],
+						questContents: qId[0]['questContents'],
 						questYn: qId[0]['questYn'],
 						questRate: rate
 					};

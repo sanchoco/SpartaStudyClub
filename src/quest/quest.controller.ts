@@ -16,10 +16,16 @@ import { UpdateQuestDto } from './dto/update-quest.dto';
 import { DeleteQuestDto } from './dto/delete-quest.dto';
 
 function getToday(): string {
-	const date: Date = new Date();
-	const year = String(date.getFullYear());
-	const month: string = ('0' + (1 + date.getMonth())).slice(-2);
-	const day: string = ('0' + date.getDate()).slice(-2);
+	const today = new Date();
+	const utc = today.getTime() + today.getTimezoneOffset() * 60 * 1000;
+	const KR_TIME_DIFF = 9 * 60 * 60 * 1000;
+
+	const kr_today = new Date(utc + KR_TIME_DIFF + 32400000);
+
+	console.log('kr_today: ', kr_today);
+	const year = String(kr_today.getFullYear());
+	const month: string = ('0' + (1 + kr_today.getMonth())).slice(-2);
+	const day: string = ('0' + kr_today.getDate()).slice(-2);
 	return year + '/' + month + '/' + day;
 }
 
@@ -51,6 +57,7 @@ export class QuestController {
 	@Post('time')
 	setStudyTime(@Body() createSetDto: CreateSetDto, @Headers() header: any) {
 		const ymd = getToday();
+		console.log(ymd);
 		return this.questService.setStudyTime(createSetDto, ymd, header.email);
 	}
 
