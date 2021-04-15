@@ -5,7 +5,11 @@ import * as jwt from 'jsonwebtoken';
 export class AuthMiddleware implements NestMiddleware {
 	use(req: any, res: any, next: () => void): any {
 		try {
-			const token = req.headers.authorization;
+			const [type, token] = req.headers.authorization.split(' ');
+			if (type != 'Bearer') {
+				res.json({ msg: 'not_login' });
+				return;
+			}
 			const payload = jwt.verify(token, process.env.SECRET_KEY);
 			req.headers.email = payload.email;
 			next();
