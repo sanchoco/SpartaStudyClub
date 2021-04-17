@@ -48,6 +48,7 @@ export class QuestController {
 		month = ('0' + parseInt(month)).slice(-2);
 		const toDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
 		let fromDate = new Date();
+		fromDate.setFullYear(toDate.getFullYear());
 		fromDate.setMonth(toDate.getMonth() - 1);
 		fromDate.setDate(1);
 		return this.questService.getCalendar(fromDate, toDate, header.email);
