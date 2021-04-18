@@ -8,21 +8,21 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn
 } from 'typeorm';
-import { Group } from './group.entity';
+import { StudyGroup } from './studyGroup.entity';
 
-@Entity('GroupUser')
+@Entity('groupUser')
 @Index(['groupUserId'])
 export class GroupUser {
 	@PrimaryGeneratedColumn('uuid')
 	groupUserId: string;
 
-	@ManyToOne(() => Group, (group) => group.groupUser)
+	@ManyToOne(() => StudyGroup, (studyGroup) => studyGroup.groupUser)
 	@JoinColumn([{ name: 'groupId', referencedColumnName: 'groupId' }])
-	group: GroupUser;
+	studyGroup: StudyGroup;
 
 	@ManyToOne(() => User, (user) => user.groupUser)
 	@JoinColumn([{ name: 'email', referencedColumnName: 'email' }])
-	user: GroupUser;
+	user: User;
 
 	@CreateDateColumn({ type: 'timestamp' })
 	createdDt: Date;

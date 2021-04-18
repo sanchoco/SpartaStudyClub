@@ -1,6 +1,6 @@
 import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 import { UserToday } from 'src/quest/entities/userToday.entity';
-import { Group } from 'src/group/entities/group.entity';
+import { StudyGroup } from 'src/group/entities/studyGroup.entity';
 import { GroupUser } from 'src/group/entities/groupUser.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
 
@@ -21,10 +21,10 @@ export class User {
 	})
 	userToday: UserToday[];
 
-	@OneToMany(() => Group, (group) => group.user, {
+	@OneToMany(() => StudyGroup, (studyGroup) => studyGroup.user, {
 		onDelete: 'CASCADE'
 	})
-	group: Group[];
+	studyGroup: StudyGroup[];
 
 	@OneToMany(() => GroupUser, (groupUser) => groupUser.user, {
 		onDelete: 'CASCADE'

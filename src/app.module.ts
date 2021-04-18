@@ -12,7 +12,7 @@ import { GroupModule } from './group/group.module';
 import { CommentController } from './comment/comment.controller';
 import { CommentService } from './comment/comment.service';
 import { CommentModule } from './comment/comment.module';
-import { Group } from './group/entities/group.entity';
+import { StudyGroup } from './group/entities/studyGroup.entity';
 import { GroupUser } from './group/entities/groupUser.entity';
 import { Comment } from './comment/entities/comment.entity';
 
@@ -25,7 +25,7 @@ import { Comment } from './comment/entities/comment.entity';
 			User,
 			UserToday,
 			Quest,
-			Group,
+			StudyGroup,
 			GroupUser,
 			Comment
 		]),
@@ -36,7 +36,7 @@ import { Comment } from './comment/entities/comment.entity';
 			username: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
 			database: 'ssc',
-			entities: [User, UserToday, Quest, Group, GroupUser, Comment],
+			entities: [User, UserToday, Quest, StudyGroup, GroupUser, Comment],
 			synchronize: true
 		}),
 		UserModule,

@@ -7,10 +7,10 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn
 } from 'typeorm';
-import { Group } from 'src/group/entities/group.entity';
+import { StudyGroup } from 'src/group/entities/studyGroup.entity';
 import { User } from 'src/user/entities/user.entity';
 
-@Entity('Comment')
+@Entity('comment')
 @Index(['cmtId'])
 export class Comment {
 	@PrimaryGeneratedColumn('uuid')
@@ -24,9 +24,9 @@ export class Comment {
 
 	@ManyToOne(() => User, (user) => user.comment)
 	@JoinColumn([{ name: 'nickname', referencedColumnName: 'nickname' }])
-	user: Comment;
+	user: User;
 
-	@ManyToOne(() => Group, (group) => group.comment)
+	@ManyToOne(() => StudyGroup, (studyGroup) => studyGroup.comment)
 	@JoinColumn([{ name: 'groupId', referencedColumnName: 'groupId' }])
-	group: Comment;
+	studyGroup: StudyGroup;
 }

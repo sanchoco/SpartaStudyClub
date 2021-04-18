@@ -4,11 +4,11 @@ import { AuthMiddleware } from 'src/middleware/AuthMiddleware';
 import { CommentController } from './comment.controller';
 import { CommentService } from './comment.service';
 import { User } from 'src/user/entities/user.entity';
-import { Group } from 'src/group/entities/group.entity';
+import { StudyGroup } from 'src/group/entities/studyGroup.entity';
 import { Comment } from './entities/comment.entity';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([User, Group, Comment])],
+	imports: [TypeOrmModule.forFeature([User, StudyGroup, Comment])],
 	controllers: [CommentController],
 	providers: [CommentService]
 })

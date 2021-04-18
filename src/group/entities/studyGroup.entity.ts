@@ -12,9 +12,9 @@ import {
 } from 'typeorm';
 import { GroupUser } from './groupUser.entity';
 
-@Entity('Group')
+@Entity('studyGroup')
 @Index(['groupId'])
-export class Group {
+export class StudyGroup {
 	@PrimaryGeneratedColumn('uuid')
 	groupId: string;
 
@@ -27,13 +27,13 @@ export class Group {
 	@CreateDateColumn({ type: 'timestamp' })
 	createdDt: Date;
 
-	@ManyToOne(() => User, (user) => user.group)
+	@ManyToOne(() => User, (user) => user.studyGroup)
 	@JoinColumn([{ name: 'email', referencedColumnName: 'email' }])
-	user: Group;
+	user: User;
 
-	@OneToMany(() => GroupUser, (groupUser) => groupUser.group)
+	@OneToMany(() => GroupUser, (groupUser) => groupUser.studyGroup)
 	groupUser: GroupUser[];
 
-	@OneToMany(() => Comment, (comment) => comment.group)
+	@OneToMany(() => Comment, (comment) => comment.studyGroup)
 	comment: Comment[];
 }

@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class createGroup {
+export class createGroupDto {
 	@IsString()
 	readonly groupName: string;
 
