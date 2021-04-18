@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Not, Repository } from 'typeorm';
-import { createGroupDto } from './dto/create-group.dto';
+import { CreateGroupDto } from './dto/create-group.dto';
 import { StudyGroup } from './entities/studyGroup.entity';
 import { GroupUser } from './entities/groupUser.entity';
+import { JoinGroupDto } from './dto/join-group.dto';
 
 @Injectable()
 export class GroupService {
@@ -19,47 +20,42 @@ export class GroupService {
 		private readonly groupUserRepository: Repository<GroupUser>
 	) {}
 
+	// 그룹 조회
 	async getGroup(email: string) {
+		// 해당 사용자가 가입한 그룹
+		const joined = await this.userRepository
+			.createQueryBuilder('u')
+			.select('sg.groupId', 'groupId')
+			.addSelect('u.nickname', 'nickname')
+			.addSelect('sg.groupName', 'groupName')
+			.addSelect('sg.groupDesc', 'groupDesc')
+			.innerJoin(GroupUser, 'gu', 'u.email = gu.email')
+			.innerJoin(StudyGroup, 'sg', 'gu.groupId = sg.groupId')
+			.where('u.email = :email', { email: email })
+			.orderBy('sg.createdDt', 'DESC')
+			.getRawMany();
+
+		// 가입하지 않은 그룹 찾기용 서브쿼리
+		const subQuery = await this.userRepository
+			.createQueryBuilder('u')
+			.select('gu.groupId', 'groupId')
+			.innerJoin(GroupUser, 'gu', 'u.email = gu.email')
+			.where(`u.email = '${email}'`);
+
+		// 해당 사용자가 가입하지 않은 그룹
+		const unjoined = await this.userRepository
+			.createQueryBuilder('u')
+			.select('sg.groupId', 'groupId')
+			.addSelect('u.nickname', 'nickname')
+			.addSelect('sg.groupName', 'groupName')
+			.addSelect('sg.groupDesc', 'groupDesc')
+			.innerJoin(GroupUser, 'gu', 'u.email = gu.email')
+			.innerJoin(StudyGroup, 'sg', 'gu.groupId = sg.groupId')
+			.where('gu.groupId NOT IN (' + subQuery.getQuery() + ')')
+			.orderBy('sg.createdDt', 'DESC')
+			.getRawMany();
+
 		try {
-			const subQuery = await this.groupUserRepository
-				.createQueryBuilder('gu')
-				.select(['groupId', 'COUNT(groupId) AS userCnt'])
-				.groupBy('groupId');
-
-			console.log('hello');
-			const joined = await this.userRepository
-				.createQueryBuilder('u')
-				.select([
-					'sg.groupId',
-					'u.nickname',
-					'sg.groupName',
-					'sg.groupDesc',
-					'cgu.userCnt'
-				])
-				.from('(' + subQuery.getQuery() + ')', 'cgu')
-				.innerJoin('u.studyGroup', 'sg')
-				.innerJoin('u.groupUser', 'gu')
-				.where('u.email = :email', { email: email })
-				.andWhere('u.email = gu.email')
-				.andWhere('gu.groupId = sg.groupId')
-				.andWhere('gu.groupId = cgu.groupId')
-				.orderBy('sg.createdDt', 'DESC')
-				.getMany();
-
-			console.log('my');
-			const unjoined = await this.userRepository
-				.createQueryBuilder('user')
-				.select([
-					'sg.groupId',
-					'user.nickname',
-					'sg.groupName',
-					'sg.groupDesc'
-				])
-				.innerJoin('user.studyGroup', 'sg')
-				.where('user.email != :email', { email: email })
-				.orderBy('sg.createdDt', 'DESC')
-				.getMany();
-
 			return {
 				msg: 'success',
 				joined: joined,
@@ -71,11 +67,10 @@ export class GroupService {
 	}
 
 	// 그룹 생성
-	async createGroup(createGroup: createGroupDto, email: string) {
+	async createGroup(createGroup: CreateGroupDto, email: string) {
 		try {
 			const user: User = new User();
 			user.email = email;
-			await this.userRepository.save(user);
 
 			const studyGroup: StudyGroup = new StudyGroup();
 			studyGroup.groupName = createGroup.groupName;
@@ -90,6 +85,36 @@ export class GroupService {
 
 			return { msg: 'success' };
 		} catch (error) {
+			return { msg: 'fail' };
+		}
+	}
+
+	//그룹 가입
+	async joinGroup(joinGroup: JoinGroupDto) {
+		try {
+			const user: User = new User();
+			user.email = joinGroup.email;
+
+			const studyGroup: StudyGroup = new StudyGroup();
+			studyGroup.groupId = joinGroup.groupId;
+
+			return await this.groupUserRepository
+				.findOne({
+					user: user,
+					studyGroup: studyGroup
+				})
+				.then(async (findJoin) => {
+					if (!findJoin) {
+						await this.groupUserRepository.insert({
+							user: user,
+							studyGroup: studyGroup
+						});
+						return { msg: 'success' };
+					} else {
+						return { msg: 'fail' };
+					}
+				});
+		} catch {
 			return { msg: 'fail' };
 		}
 	}
