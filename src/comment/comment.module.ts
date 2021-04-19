@@ -6,9 +6,10 @@ import { CommentService } from './comment.service';
 import { User } from 'src/user/entities/user.entity';
 import { StudyGroup } from 'src/group/entities/studyGroup.entity';
 import { Comment } from './entities/comment.entity';
+import { GroupUser } from 'src/group/entities/groupUser.entity';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([User, StudyGroup, Comment])],
+	imports: [TypeOrmModule.forFeature([User, StudyGroup, GroupUser, Comment])],
 	controllers: [CommentController],
 	providers: [CommentService]
 })

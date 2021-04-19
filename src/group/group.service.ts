@@ -8,6 +8,10 @@ import { GroupUser } from './entities/groupUser.entity';
 import { JoinGroupDto } from './dto/join-group.dto';
 import { QuitGroupDto } from './dto/quit-group.dto';
 import { DeleteGroupDto } from './dto/delete-group.dto';
+import { GetCommentDto } from './dto/get-comment.dto';
+import { Comment } from 'src/comment/entities/comment.entity';
+import { GetRankDto } from './dto/get-rank.dto';
+import { UserToday } from 'src/quest/entities/userToday.entity';
 
 @Injectable()
 export class GroupService {
@@ -19,7 +23,10 @@ export class GroupService {
 		private readonly studyGroupRepository: Repository<StudyGroup>,
 
 		@InjectRepository(GroupUser)
-		private readonly groupUserRepository: Repository<GroupUser>
+		private readonly groupUserRepository: Repository<GroupUser>,
+
+		@InjectRepository(Comment)
+		private readonly commentRepository: Repository<Comment>
 	) {}
 
 	// 그룹 조회
@@ -113,35 +120,31 @@ export class GroupService {
 
 	//그룹 가입
 	async joinGroup(joinGroup: JoinGroupDto) {
-		try {
-			const user: User = new User();
-			user.email = joinGroup.email;
+		const user: User = new User();
+		user.email = joinGroup.email;
 
-			const studyGroup: StudyGroup = new StudyGroup();
-			studyGroup.groupId = joinGroup.groupId;
+		const studyGroup: StudyGroup = new StudyGroup();
+		studyGroup.groupId = joinGroup.groupId;
 
-			return await this.groupUserRepository
-				.findOne({
-					user: user,
-					studyGroup: studyGroup
-				})
-				.then(async (findJoin) => {
-					if (!findJoin) {
-						await this.groupUserRepository.insert({
-							user: user,
-							studyGroup: studyGroup
-						});
-						return { msg: 'success' };
-					} else {
-						return { msg: 'fail' };
-					}
-				})
-				.catch((err) => {
+		return await this.groupUserRepository
+			.findOne({
+				user: user,
+				studyGroup: studyGroup
+			})
+			.then(async (findJoin) => {
+				if (!findJoin) {
+					await this.groupUserRepository.insert({
+						user: user,
+						studyGroup: studyGroup
+					});
+					return { msg: 'success' };
+				} else {
 					return { msg: 'fail' };
-				});
-		} catch {
-			return { msg: 'fail' };
-		}
+				}
+			})
+			.catch((err) => {
+				return { msg: 'fail' };
+			});
 	}
 
 	// 그룹 삭제
@@ -183,44 +186,86 @@ export class GroupService {
 
 	// 그룹 탈퇴
 	async quitGroup(quitGroup: QuitGroupDto) {
-		try {
-			const user: User = new User();
-			user.email = quitGroup.email;
+		const user: User = new User();
+		user.email = quitGroup.email;
 
-			const studyGroup: StudyGroup = new StudyGroup();
-			studyGroup.groupId = quitGroup.groupId;
+		const studyGroup: StudyGroup = new StudyGroup();
+		studyGroup.groupId = quitGroup.groupId;
 
-			return await this.groupUserRepository
-				.findOne({
-					user: user,
-					studyGroup: studyGroup
-				})
-				.then(async (findJoin) => {
-					if (findJoin) {
-						return await this.groupUserRepository
-							.delete({
-								user: user,
-								studyGroup: studyGroup
-							})
-							.then(async (del) => {
-								if (del.affected > 0) {
-									return { msg: 'success' };
-								} else {
-									return { msg: 'fail' };
-								}
-							})
-							.catch((err) => {
+		return await this.groupUserRepository
+			.findOne({
+				user: user,
+				studyGroup: studyGroup
+			})
+			.then(async (findJoin) => {
+				if (findJoin) {
+					return await this.groupUserRepository
+						.delete({
+							user: user,
+							studyGroup: studyGroup
+						})
+						.then(async (del) => {
+							if (del.affected > 0) {
+								return { msg: 'success' };
+							} else {
 								return { msg: 'fail' };
-							});
-					} else {
-						return { msg: 'fail' };
-					}
-				})
-				.catch((err) => {
+							}
+						})
+						.catch((err) => {
+							return { msg: 'fail' };
+						});
+				} else {
 					return { msg: 'fail' };
-				});
-		} catch {
-			return { msg: 'fail' };
-		}
+				}
+			})
+			.catch((err) => {
+				return { msg: 'fail' };
+			});
+	}
+
+	// 그룹 게시글 목록
+	async getComment(getCmt: GetCommentDto) {
+		return await this.commentRepository
+			.createQueryBuilder('c')
+			.select('c.cmtId', 'cmtId')
+			.addSelect('c.cmtContents', 'cmtContents')
+			.addSelect('c.createdDt', 'createdDt')
+			.addSelect('u.nickname', 'nickname')
+			.innerJoin(User, 'u', 'c.nickname = u.nickname')
+			.innerJoin(StudyGroup, 'sg', 'c.groupId = sg.groupId')
+			.where('c.groupId = :groupId', { groupId: getCmt.groupId })
+			.orderBy('c.createdDt', 'DESC')
+			.getRawMany()
+			.then((data) => {
+				return { msg: 'success', data: data };
+			})
+			.catch((err) => {
+				return { msg: 'fail' };
+			});
+	}
+
+	// 퀘스트 수행률 랭킹 조회
+	async getRanking(getRank: GetRankDto) {
+		return await this.groupUserRepository
+			.createQueryBuilder('gu')
+			.select('u.nickname', 'nickname')
+			.addSelect('ut.studyTime', 'studyTime')
+			.addSelect('ut.questRate', 'questRate')
+			.innerJoin(User, 'u', 'gu.email = u.email')
+			.innerJoin(UserToday, 'ut', 'u.email = ut.email')
+			.innerJoin(StudyGroup, 'sg', 'gu.groupId = sg.groupId')
+			.where('gu.groupId = :groupId', { groupId: getRank.groupId })
+			.andWhere('ut.studyTime = :studyTime', {
+				studyTime: getRank.studyTime
+			})
+			.orderBy('ut.questRate', 'DESC')
+			.addOrderBy('ut.studySetTime', 'DESC')
+			.getRawMany()
+			.then((data) => {
+				return { msg: 'success', data: data };
+			})
+			.catch((err) => {
+				return { msg: 'fail' };
+			});
 	}
 }
