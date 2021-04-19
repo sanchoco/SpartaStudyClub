@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatGateway } from './chat.gateway';
+import { Chat } from './entities/chat.entity';
 
 @Module({
-  providers: [ChatGateway]
+	imports: [TypeOrmModule.forFeature([Chat])],
+	providers: [ChatGateway]
 })
 export class ChatModule {}

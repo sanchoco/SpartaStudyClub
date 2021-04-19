@@ -6,16 +6,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Quest } from 'src/quest/entities/quest.entity';
 import { UserToday } from 'src/quest/entities/userToday.entity';
-import { GroupController } from './group/group.controller';
-import { GroupService } from './group/group.service';
 import { GroupModule } from './group/group.module';
-import { CommentController } from './comment/comment.controller';
-import { CommentService } from './comment/comment.service';
 import { CommentModule } from './comment/comment.module';
 import { StudyGroup } from './group/entities/studyGroup.entity';
 import { GroupUser } from './group/entities/groupUser.entity';
 import { Comment } from './comment/entities/comment.entity';
 import { ChatModule } from './chat/chat.module';
+import { Chat } from './chat/entities/chat.entity';
 
 @Module({
 	imports: [
@@ -28,7 +25,8 @@ import { ChatModule } from './chat/chat.module';
 			Quest,
 			StudyGroup,
 			GroupUser,
-			Comment
+			Comment,
+			Chat
 		]),
 		TypeOrmModule.forRoot({
 			type: 'mysql',
@@ -37,7 +35,7 @@ import { ChatModule } from './chat/chat.module';
 			username: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
 			database: 'ssc',
-			entities: [User, UserToday, Quest, StudyGroup, GroupUser, Comment],
+			entities: [User, UserToday, Quest, StudyGroup, GroupUser, Comment, Chat],
 			synchronize: true
 		}),
 		UserModule,
