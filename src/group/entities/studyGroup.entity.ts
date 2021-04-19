@@ -31,9 +31,13 @@ export class StudyGroup {
 	@JoinColumn([{ name: 'email', referencedColumnName: 'email' }])
 	user: User;
 
-	@OneToMany(() => GroupUser, (groupUser) => groupUser.studyGroup)
+	@OneToMany(() => GroupUser, (groupUser) => groupUser.studyGroup, {
+		onDelete: 'CASCADE'
+	})
 	groupUser: GroupUser[];
 
-	@OneToMany(() => Comment, (comment) => comment.studyGroup)
+	@OneToMany(() => Comment, (comment) => comment.studyGroup, {
+		onDelete: 'CASCADE'
+	})
 	comment: Comment[];
 }

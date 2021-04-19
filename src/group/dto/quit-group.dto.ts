@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class DeleteGroupDto {
+export class QuitGroupDto {
 	@IsString()
 	groupId: string;
 
