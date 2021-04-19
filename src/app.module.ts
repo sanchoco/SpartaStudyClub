@@ -15,6 +15,7 @@ import { CommentModule } from './comment/comment.module';
 import { StudyGroup } from './group/entities/studyGroup.entity';
 import { GroupUser } from './group/entities/groupUser.entity';
 import { Comment } from './comment/entities/comment.entity';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
 	imports: [
@@ -42,9 +43,8 @@ import { Comment } from './comment/entities/comment.entity';
 		UserModule,
 		QuestModule,
 		GroupModule,
-		CommentModule
-	],
-	controllers: [GroupController, CommentController],
-	providers: [GroupService, CommentService]
+		CommentModule,
+		ChatModule
+	]
 })
 export class AppModule {}
