@@ -57,7 +57,7 @@ export class GroupController {
 	getRanking(@Param('groupId') groupId: string, @Headers() header: any) {
 		const getRank: GetRankDto = new GetRankDto();
 		getRank.groupId = groupId;
-		getRank.studyTime = getToday();
+		getRank.day = getToday();
 		return this.groupService.getRanking(getRank);
 	}
 

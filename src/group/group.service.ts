@@ -252,13 +252,16 @@ export class GroupService {
 			.select('u.nickname', 'nickname')
 			.addSelect('ut.studyTime', 'studyTime')
 			.addSelect('ut.questRate', 'questRate')
-			.innerJoin(User, 'u', 'gu.email = u.email')
-			.innerJoin(UserToday, 'ut', 'u.email = ut.email')
-			.innerJoin(StudyGroup, 'sg', 'gu.groupId = sg.groupId')
-			.where('gu.groupId = :groupId', { groupId: getRank.groupId })
-			.andWhere('ut.studyTime = :studyTime', {
-				studyTime: getRank.studyTime
+			.innerJoin(
+				User,
+				'u',
+				'gu.email = u.email and gu.groupId = :groupId',
+				{ groupId: getRank.groupId }
+			)
+			.leftJoin(UserToday, 'ut', 'u.email = ut.email and ut.day = :day', {
+				day: getRank.day
 			})
+			.innerJoin(StudyGroup, 'sg', 'gu.groupId = sg.groupId')
 			.orderBy('ut.questRate', 'DESC')
 			.addOrderBy('ut.studySetTime', 'DESC')
 			.getRawMany()

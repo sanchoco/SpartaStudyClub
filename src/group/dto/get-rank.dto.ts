@@ -5,5 +5,5 @@ export class GetRankDto {
 	groupId: string;
 
 	@IsString()
-	studyTime: string;
+	day: string;
 }
