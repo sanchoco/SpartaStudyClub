@@ -44,7 +44,7 @@ export class GroupService {
 
 				.createQueryBuilder('u')
 				.select('sg.groupId', 'groupId')
-				.addSelect('u.nickname', 'nickname')
+				.addSelect('u2.nickname', 'nickname')
 				.addSelect('sg.groupName', 'groupName')
 				.addSelect('sg.groupDesc', 'groupDesc')
 				.addSelect('cgu.userCnt', 'userCnt')
@@ -55,6 +55,7 @@ export class GroupService {
 					'cgu',
 					'gu.groupId = cgu.groupId'
 				)
+				.innerJoin(User, 'u2', 'sg.email = u2.email')
 				.where('u.email = :email', { email: email })
 				.orderBy('sg.createdDt', 'DESC')
 				.getRawMany();
