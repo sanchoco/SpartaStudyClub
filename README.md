@@ -21,7 +21,7 @@ Node.js, TypeScript, NestJS, Websocket(ws), Mysql, TypeORM, JWT, Rest API
 - **21.04.09 ~ 21.04.22 (2주)**
 
 ### 협업
-- **공통** : API 및 DB 설계, 프로젝트 설계 및 세팅
+- **공통** :  프로젝트(API, DB) 설계 및 세팅
 - **조상균** : 회원가입, 로그인, 미들웨어 및 인증, 채팅 기능 [``src/user``, ``src/middleware``, ``src/chat``]
 - **원동균** : 나의 목표 설정 및 관리, 스터디 그룹 기능 [``src/quest``, ``src/group``, ``src/comment``]
 
