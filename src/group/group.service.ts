@@ -78,7 +78,7 @@ export class GroupService {
 				.innerJoin(
 					'(' + cntSubQuery.getQuery() + ')',
 					'cgu',
-					'gu.groupId = cgu.groupId'
+					'sg.groupId = cgu.groupId'
 				)
 				.where('sg.groupId NOT IN (' + subQuery.getQuery() + ')')
 				.orderBy('sg.createdDt', 'DESC')
