@@ -12,7 +12,6 @@ import { DeleteGroupDto } from './dto/delete-group.dto';
 import { GetCommentDto } from './dto/get-comment.dto';
 import { GetRankDto } from './dto/get-rank.dto';
 import { JoinGroupDto } from './dto/join-group.dto';
-import { QuitGroupDto } from './dto/quit-group.dto';
 import { GroupService } from './group.service';
 
 function getToday(): string {
@@ -71,7 +70,7 @@ export class GroupController {
 		return this.groupService.joinGroup(joinGroup);
 	}
 
-	// 그룹 삭제
+	// 그룹 삭제 혹은 탈퇴
 	@Delete('/:groupId')
 	deleteGroup(@Param('groupId') groupId: string, @Headers() header: any) {
 		const deleteGroup = new DeleteGroupDto();
@@ -79,18 +78,5 @@ export class GroupController {
 		deleteGroup.email = header.email;
 
 		return this.groupService.deleteGroup(deleteGroup);
-	}
-
-	// 그룹 탈퇴
-	@Delete('/:groupId/:email')
-	quitGroup(
-		@Param('groupId') groupId: string,
-		@Param('email') email: string
-	) {
-		const quitGroup = new QuitGroupDto();
-		quitGroup.groupId = groupId;
-		quitGroup.email = email;
-
-		return this.groupService.quitGroup(quitGroup);
 	}
 }

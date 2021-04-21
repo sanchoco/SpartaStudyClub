@@ -6,7 +6,6 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { StudyGroup } from './entities/studyGroup.entity';
 import { GroupUser } from './entities/groupUser.entity';
 import { JoinGroupDto } from './dto/join-group.dto';
-import { QuitGroupDto } from './dto/quit-group.dto';
 import { DeleteGroupDto } from './dto/delete-group.dto';
 import { GetCommentDto } from './dto/get-comment.dto';
 import { Comment } from 'src/comment/entities/comment.entity';
@@ -148,7 +147,7 @@ export class GroupService {
 			});
 	}
 
-	// 그룹 삭제
+	// 그룹 삭제 혹은 탈퇴
 	async deleteGroup(deleteGroup: DeleteGroupDto) {
 		const user: User = new User();
 		user.email = deleteGroup.email;
@@ -163,6 +162,7 @@ export class GroupService {
 			})
 			.then(async (findGroup) => {
 				if (findGroup) {
+					// 그룹 삭제
 					await this.groupUserRepository.delete({
 						studyGroup: studyGroup
 					});
@@ -180,34 +180,29 @@ export class GroupService {
 							}
 						});
 				} else {
-					return { msg: 'fail' };
-				}
-			});
-	}
-
-	// 그룹 탈퇴
-	async quitGroup(quitGroup: QuitGroupDto) {
-		const user: User = new User();
-		user.email = quitGroup.email;
-
-		const studyGroup: StudyGroup = new StudyGroup();
-		studyGroup.groupId = quitGroup.groupId;
-
-		return await this.groupUserRepository
-			.findOne({
-				user: user,
-				studyGroup: studyGroup
-			})
-			.then(async (findJoin) => {
-				if (findJoin) {
+					// 그룹 탈퇴
 					return await this.groupUserRepository
-						.delete({
+						.findOne({
 							user: user,
 							studyGroup: studyGroup
 						})
-						.then(async (del) => {
-							if (del.affected > 0) {
-								return { msg: 'success' };
+						.then(async (findJoin) => {
+							if (findJoin) {
+								return await this.groupUserRepository
+									.delete({
+										user: user,
+										studyGroup: studyGroup
+									})
+									.then(async (del) => {
+										if (del.affected > 0) {
+											return { msg: 'success' };
+										} else {
+											return { msg: 'fail' };
+										}
+									})
+									.catch((err) => {
+										return { msg: 'fail' };
+									});
 							} else {
 								return { msg: 'fail' };
 							}
@@ -215,12 +210,7 @@ export class GroupService {
 						.catch((err) => {
 							return { msg: 'fail' };
 						});
-				} else {
-					return { msg: 'fail' };
 				}
-			})
-			.catch((err) => {
-				return { msg: 'fail' };
 			});
 	}
 
