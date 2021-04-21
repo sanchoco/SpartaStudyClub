@@ -74,14 +74,13 @@ export class GroupService {
 				.addSelect('sg.groupName', 'groupName')
 				.addSelect('sg.groupDesc', 'groupDesc')
 				.addSelect('cgu.userCnt', 'userCnt')
-				.innerJoin(GroupUser, 'gu', 'u.email = gu.email')
-				.innerJoin(StudyGroup, 'sg', 'gu.groupId = sg.groupId')
+				.innerJoin(StudyGroup, 'sg', 'u.email = sg.email')
 				.innerJoin(
 					'(' + cntSubQuery.getQuery() + ')',
 					'cgu',
 					'gu.groupId = cgu.groupId'
 				)
-				.where('gu.groupId NOT IN (' + subQuery.getQuery() + ')')
+				.where('sg.groupId NOT IN (' + subQuery.getQuery() + ')')
 				.orderBy('sg.createdDt', 'DESC')
 				.getRawMany();
 
@@ -240,7 +239,7 @@ export class GroupService {
 		return await this.groupUserRepository
 			.createQueryBuilder('gu')
 			.select('u.nickname', 'nickname')
-			.addSelect('ut.studyTime', 'studyTime')
+			.addSelect('ut.studySetTime', 'studySetTime')
 			.addSelect('ut.questRate', 'questRate')
 			.innerJoin(
 				User,
