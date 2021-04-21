@@ -29,4 +29,4 @@ Node.js, TypeScript, NestJS, Websocket(ws), Mysql, TypeORM, JWT, Rest API
 - https://github.com/miniPinetree/Sparta-Study-Club
 
 ### 상세 페이지 (프로젝트 진행 과정)
-- https://www.notion.so/3-6f33c56578f74a23844f6e3a757073fe
+- https://www.notion.so/d29d9532365a4862a555e63693afb8b7
