@@ -97,6 +97,9 @@ export class GroupService {
 	// 그룹 생성
 	async createGroup(createGroup: CreateGroupDto, email: string) {
 		try {
+			// studyGroup에는 그룹의 정보와 그룹장 정보가 들어감
+			// groupUser에는 그룹원의 정보가 들어감
+			// 그룹 생성시, 그룹장이면서 그룹원이기 때문에 2 테이블에 전부 insert 작업을 수행
 			const user: User = new User();
 			user.email = email;
 
@@ -162,7 +165,12 @@ export class GroupService {
 			.then(async (findGroup) => {
 				if (findGroup) {
 					// 그룹 삭제
+					// 그룹 삭제시 studyGroup, groupUser, comment 정보 전부 삭제
 					await this.groupUserRepository.delete({
+						studyGroup: studyGroup
+					});
+
+					await this.commentRepository.delete({
 						studyGroup: studyGroup
 					});
 

@@ -14,6 +14,7 @@ import { GetRankDto } from './dto/get-rank.dto';
 import { JoinGroupDto } from './dto/join-group.dto';
 import { GroupService } from './group.service';
 
+// 오늘의 날짜 구하기
 function getToday(): string {
 	const today = new Date();
 	const utc = today.getTime() + today.getTimezoneOffset() * 60 * 1000;
