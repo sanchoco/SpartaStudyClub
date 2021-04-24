@@ -2,7 +2,10 @@
 
 >시간 내에 모든 목표를 달성하세요! 학습 목표를 확실하게 관리해드립니다!
 
-![ssc](https://user-images.githubusercontent.com/58046372/115713603-2b8afd00-a3b1-11eb-8357-62f4a9676f8b.gif)
+![115776896-9d823700-a3ef-11eb-8907-d07593c789d7](https://user-images.githubusercontent.com/58046372/115961211-5fe8ef80-a550-11eb-9b0a-ff0bbe7fd461.png)
+
+### 구현 영상
+- https://youtu.be/PO9PinZHFJs
 
 ### 기능
 - 매일 매일 학습 목표와 시간을 설정하고 완료한 것은 체크할 수 있어요!
