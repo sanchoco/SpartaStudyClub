@@ -28,6 +28,10 @@ Node.js, TypeScript, NestJS, Websocket(ws), Mysql, TypeORM, JWT, Rest API
 - **조상균** : 회원가입, 로그인, 미들웨어 및 인증, 채팅 기능 [``src/user``, ``src/middleware``, ``src/chat``]
 - **원동균** : 나의 목표 설정 및 관리, 스터디 그룹 기능 [``src/quest``, ``src/group``, ``src/comment``]
 
+
+### 아키텍쳐
+<p align="center"><img src="https://user-images.githubusercontent.com/52685665/120212383-e50ca600-c26c-11eb-8ae8-958871f40984.png"></p>
+
 ### Front-end(React) 코드
 - https://github.com/miniPinetree/Sparta-Study-Club
 
