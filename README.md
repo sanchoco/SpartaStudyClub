@@ -49,5 +49,5 @@
 ## Front-end(React) 코드
 - https://github.com/miniPinetree/Sparta-Study-Club
 
-## 상세 페이지 (프로젝트 진행 과정)
+## 상세 페이지 (프로젝트 진행 과정 및 API)
 - https://www.notion.so/d29d9532365a4862a555e63693afb8b7
