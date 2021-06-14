@@ -2,6 +2,9 @@
 
 >시간 내에 모든 목표를 달성하세요! 학습 목표를 확실하게 관리해드립니다!
 
+[사이트 바로가기](http://mini-talk.shop.s3-website.ap-northeast-2.amazonaws.com/group) /
+[시연영상 바로보기](https://www.youtube.com/watch?v=PO9PinZHFJs)
+
 ![115776896-9d823700-a3ef-11eb-8907-d07593c789d7](https://user-images.githubusercontent.com/58046372/115961211-5fe8ef80-a550-11eb-9b0a-ff0bbe7fd461.png)
 
 ## 🏄‍♀️ 구현 영상
